@@ -231,7 +231,7 @@ guestsFilterContainerView model =
     in
     if model.isGuestsMenuOpen then
         div [ class "filter-container" ]
-            [ div [ onClick OpenGuestsFilterMenu ]
+            [ div [ onClick CloseGuestsFilterMenu ]
                 [ div [ class "between align-center" ]
                     [ div []
                         [ p [ class "filter-label" ] [ text "Guests" ]
@@ -269,7 +269,7 @@ guestsFilterContainerView model =
             ]
 
     else
-        div [ class "filter-container", onClick CloseGuestsFilterMenu ]
+        div [ class "filter-container", onClick OpenGuestsFilterMenu ]
             [ div [ class "between align-center" ]
                 [ div []
                     [ p [ class "filter-label" ] [ text "Guests" ]
