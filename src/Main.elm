@@ -156,13 +156,6 @@ smallNavActions model =
         thereAreGuests =
             (model.guests.adults + model.guests.children) > 0
 
-        guests =
-            if thereAreGuests then
-                String.fromInt (model.guests.adults + model.guests.children)
-
-            else
-                "Add guests"
-
         textClass =
             if thereAreGuests then
                 ""
@@ -172,7 +165,15 @@ smallNavActions model =
     in
     div [ class "smallNavActions", onClick OpenNavBar ]
         [ p [] [ text model.location ]
-        , p [ class ("boxed " ++ textClass) ] [ text (guests ++ " Guests") ]
+        , p [ class ("boxed " ++ textClass) ]
+            [ text
+                (if thereAreGuests then
+                    String.fromInt (model.guests.adults + model.guests.children) ++ " Guests"
+
+                 else
+                    "Add guests"
+                )
+            ]
         , span [ class "material-icons primary-color" ] [ text "search" ]
         ]
 
