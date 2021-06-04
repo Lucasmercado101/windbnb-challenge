@@ -60,6 +60,7 @@ type Msg
     | RemoveAdult
     | AddChild
     | RemoveChild
+    | SetNewFilter
 
 
 update : Msg -> Model -> Model
@@ -121,6 +122,13 @@ update msg model =
         AddChild ->
             { model
                 | newChildrenAmount = model.newChildrenAmount + 1
+            }
+
+        SetNewFilter ->
+            { model
+                | guests = { adults = model.newAdultsAmount, children = model.newChildrenAmount }
+                , location = model.newLocation
+                , isNavBarToggledOpen = False
             }
 
 
@@ -412,6 +420,10 @@ expandedNavBar model =
             [ locationFilterContainerView model
             , div [ class "divider-horizontal" ] []
             , guestsFilterContainerView model
+            , button [ class "search-button", onClick SetNewFilter ]
+                [ span [ class "material-icons primary-color" ] [ text "search" ]
+                , text "Search"
+                ]
             ]
         ]
 
