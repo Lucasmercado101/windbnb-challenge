@@ -137,6 +137,69 @@ view model =
               else
                 closedNavBar model
             ]
+        , div [ class "row between stays-title" ]
+            [ h2 [] [ text "Stays in Finland" ]
+            , p [] [ text "12+ stays" ]
+            ]
+        , cardsGrid model
+        ]
+
+
+iff : Bool -> Html msg -> Html msg
+iff cond html =
+    if cond then
+        html
+
+    else
+        text ""
+
+
+cardsGrid : Model -> Html Msg
+cardsGrid model =
+    ul [ class "room-cards-grid-list" ]
+        (List.map
+            (\l ->
+                li []
+                    [ roomCard l
+                    ]
+            )
+            data
+        )
+
+
+roomCard : Item -> Html Msg
+roomCard roomData =
+    let
+        beds =
+            String.fromInt (Maybe.withDefault 0 roomData.beds)
+
+        roomType =
+            if beds /= "0" then
+                roomData.type_ ++ ". " ++ beds ++ " beds"
+
+            else
+                roomData.type_
+    in
+    div [ class "room-card" ]
+        [ img [ src roomData.photo, class "room-card__image" ] []
+        , div [ class "room-card-info" ]
+            [ iff roomData.superHost
+                (div
+                    [ class "room-card-info__super-host" ]
+                    [ text "Super Host" ]
+                )
+            , div [ class "room-card-info__details" ]
+                [ div [ class "room-card-info__type faint-text" ]
+                    [ text
+                        roomType
+                    ]
+                , p [ class "room-card-info__rating" ]
+                    [ span [ class "material-icons" ] [ text "star" ]
+                    , text (String.fromFloat roomData.rating)
+                    ]
+                ]
+            ]
+        , p [ class "room-card__title" ] [ text roomData.title ]
         ]
 
 
@@ -354,5 +417,6 @@ openNavBar model =
         ]
 
 
+main : Program () Model Msg
 main =
     Browser.sandbox { init = init, update = update, view = view }
