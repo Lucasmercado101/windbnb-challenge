@@ -83,7 +83,12 @@ update msg model =
         RemoveAdult ->
             { model
                 | guests =
-                    { adults = model.guests.adults - 1
+                    { adults =
+                        if model.guests.adults - 1 < 0 then
+                            0
+
+                        else
+                            model.guests.adults - 1
                     , children = model.guests.children
                     }
             }
@@ -100,7 +105,12 @@ update msg model =
             { model
                 | guests =
                     { adults = model.guests.adults
-                    , children = model.guests.children - 1
+                    , children =
+                        if model.guests.children - 1 < 0 then
+                            0
+
+                        else
+                            model.guests.children - 1
                     }
             }
 
@@ -162,7 +172,7 @@ smallNavActions model =
     in
     div [ class "smallNavActions", onClick OpenNavBar ]
         [ p [] [ text model.location ]
-        , p [ class ("boxed " ++ textClass) ] [ text guests ]
+        , p [ class ("boxed " ++ textClass) ] [ text (guests ++ " Guests") ]
         , span [ class "material-icons primary-color" ] [ text "search" ]
         ]
 
