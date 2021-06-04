@@ -138,13 +138,27 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
+    let
+        numberOfStays =
+            filterRooms data model
+                |> List.length
+    in
     main_ [ class "container" ]
         [ header []
             [ navBar model
             ]
         , div [ class "row between stays-title" ]
             [ h2 [] [ text "Stays in Finland" ]
-            , p [] [ text "12+ stays" ]
+            , p []
+                [ if numberOfStays > 0 then
+                    text
+                        (String.fromInt numberOfStays
+                            ++ "+ stays"
+                        )
+
+                  else
+                    text ""
+                ]
             ]
         , cardsGrid model
         ]
@@ -161,15 +175,29 @@ iff cond html =
 
 cardsGrid : Model -> Html Msg
 cardsGrid model =
-    ul [ class "room-cards-grid-list" ]
-        (List.map
-            (\l ->
-                li []
-                    [ roomCard l
-                    ]
+    div []
+        [ ul
+            [ class "room-cards-grid-list" ]
+            (List.map
+                (\l ->
+                    li []
+                        [ roomCard l
+                        ]
+                )
+                (filterRooms data model)
             )
-            data
-        )
+        ]
+
+
+filterRooms : List Item -> Model -> List Item
+filterRooms roomsData model =
+    let
+        totalGuests =
+            model.guests.adults + model.guests.children
+    in
+    roomsData
+        |> List.filter (\l -> l.city ++ ", " ++ l.country == model.location)
+        |> List.filter (\l -> l.maxGuests >= totalGuests)
 
 
 roomCard : Item -> Html Msg
