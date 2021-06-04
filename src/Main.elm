@@ -281,7 +281,7 @@ locationFilterContainerView : Model -> Html Msg
 locationFilterContainerView model =
     if model.isLocationMenuOpen then
         div [ class "filter-container" ]
-            [ div [ onClick CloseLocationFilterMenu ]
+            [ div [ class "filter-title", onClick CloseLocationFilterMenu ]
                 [ div [ class "between align-center" ]
                     [ div []
                         [ p [ class "filter-label" ] [ text "Location" ]
@@ -309,7 +309,7 @@ locationFilterContainerView model =
             ]
 
     else
-        div [ class "filter-container", onClick OpenLocationFilterMenu ]
+        div [ class "filter-container filter-title", onClick OpenLocationFilterMenu ]
             [ div [ class "between align-center" ]
                 [ div []
                     [ p [ class "filter-label" ] [ text "Location" ]
@@ -330,7 +330,7 @@ guestsFilterContainerView model =
     in
     if model.isGuestsMenuOpen then
         div [ class "filter-container" ]
-            [ div [ onClick CloseGuestsFilterMenu ]
+            [ div [ class "filter-title", onClick CloseGuestsFilterMenu ]
                 [ div [ class "between align-center" ]
                     [ div []
                         [ p [ class "filter-label" ] [ text "Guests" ]
@@ -384,7 +384,7 @@ guestsFilterContainerView model =
             ]
 
     else
-        div [ class "filter-container", onClick OpenGuestsFilterMenu ]
+        div [ class "filter-container filter-title", onClick OpenGuestsFilterMenu ]
             [ div [ class "between align-center" ]
                 [ div []
                     [ p [ class "filter-label" ] [ text "Guests" ]
@@ -423,6 +423,9 @@ expandedNavBar model =
             , button [ class "search-button", onClick SetNewFilter ]
                 [ span [ class "material-icons primary-color" ] [ text "search" ]
                 , text "Search"
+                ]
+            , button [ class "close-navbar-icon-desktop" ]
+                [ span [ class "material-icons", onClick CloseNavBar ] [ text "close" ]
                 ]
             ]
         ]
