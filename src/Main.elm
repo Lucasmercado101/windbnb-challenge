@@ -1,190 +1,313 @@
 module Main exposing (..)
 
 import Browser
+import Data exposing (Item, data)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-
-import LogoSvg exposing (logo)
-import Data exposing (data, Item)
 import Html.Events exposing (onClick)
+import LogoSvg exposing (logo)
 import Set exposing (Set)
+
+
 
 -- MODEL
 
-type alias Model = {
-    location: String,
-    guests: Int,
-    isNavBarToggledOpen: Bool,
-    isLocationMenuOpen: Bool
-  }
 
-init: Model
-init = {
-    location = "Helsinki, Finland",
-    guests = 0,
-    isNavBarToggledOpen = False,
-    isLocationMenuOpen = False
-  }
+type alias Model =
+    { location : String
+    , guests :
+        { adults : Int
+        , children : Int
+        }
+    , isNavBarToggledOpen : Bool
+    , isLocationMenuOpen : Bool
+    , isGuestsMenuOpen : Bool
+    }
+
+
+init : Model
+init =
+    { location = "Helsinki, Finland"
+    , guests =
+        { adults = 0
+        , children = 0
+        }
+    , isNavBarToggledOpen = False
+    , isLocationMenuOpen = False
+    , isGuestsMenuOpen = False
+    }
+
+
 
 -- UPDATE
 
-type Msg = OpenNavBar
-  | CloseNavBar
-  | LocationChange String
-  | OpenLocationFilterMenu
-  | CloseLocationFilterMenu
+
+type Msg
+    = OpenNavBar
+    | CloseNavBar
+    | LocationChange String
+    | OpenLocationFilterMenu
+    | CloseLocationFilterMenu
+    | OpenGuestsFilterMenu
+    | CloseGuestsFilterMenu
+    | AddAdult
+    | RemoveAdult
+
 
 update : Msg -> Model -> Model
 update msg model =
-  case msg of
-    OpenNavBar ->
-      { model | isNavBarToggledOpen = True}
+    case msg of
+        OpenNavBar ->
+            { model | isNavBarToggledOpen = True }
 
-    CloseNavBar ->
-      { model | isNavBarToggledOpen = False}
+        CloseNavBar ->
+            { model | isNavBarToggledOpen = False }
 
-    LocationChange newLocation ->
-      { model | location = newLocation, isLocationMenuOpen = False }
-    
-    OpenLocationFilterMenu ->
-      { model | isLocationMenuOpen = True }
+        LocationChange newLocation ->
+            { model | location = newLocation, isLocationMenuOpen = False }
 
-    CloseLocationFilterMenu ->
-      { model | isLocationMenuOpen = False }
+        OpenLocationFilterMenu ->
+            { model | isLocationMenuOpen = True }
+
+        CloseLocationFilterMenu ->
+            { model | isLocationMenuOpen = False }
+
+        OpenGuestsFilterMenu ->
+            { model | isGuestsMenuOpen = True }
+
+        CloseGuestsFilterMenu ->
+            { model | isGuestsMenuOpen = False }
+
+        RemoveAdult ->
+            { model
+                | guests =
+                    { adults = model.guests.adults - 1
+                    , children = model.guests.children
+                    }
+            }
+
+        AddAdult ->
+            { model
+                | guests =
+                    { adults = model.guests.adults + 1
+                    , children = model.guests.children
+                    }
+            }
+
+
 
 -- VIEW
 
-view: Model -> Html Msg
-view model = 
-    main_ [ class "container" ] [
-      header []
-          [
-              (if model.isNavBarToggledOpen == True then
+
+view : Model -> Html Msg
+view model =
+    main_ [ class "container" ]
+        [ header []
+            [ if model.isNavBarToggledOpen == True then
                 openNavBar model
+
               else
-                closedNavBar model)
-          ]
-    ]
+                closedNavBar model
+            ]
+        ]
+
 
 closedNavBar : Model -> Html Msg
-closedNavBar model = 
-    nav [
-      class "navbar navbar__closed"
-    ] [
-        logo,
-        smallNavActions model
-    ]
+closedNavBar model =
+    nav
+        [ class "navbar navbar__closed"
+        ]
+        [ logo
+        , smallNavActions model
+        ]
+
 
 smallNavActions : Model -> Html Msg
-smallNavActions model = 
-    let 
-      thereAreGuests = model.guests > 0
-      guests = 
-        if thereAreGuests then
-          String.fromInt model.guests
-        else 
-          "Add guests"
-      textClass = 
-        if thereAreGuests then
-          ""
-        else 
-          "faint-text"
+smallNavActions model =
+    let
+        thereAreGuests =
+            (model.guests.adults + model.guests.children) > 0
+
+        guests =
+            if thereAreGuests then
+                String.fromInt (model.guests.adults + model.guests.children)
+
+            else
+                "Add guests"
+
+        textClass =
+            if thereAreGuests then
+                ""
+
+            else
+                "faint-text"
     in
-    div [ class "smallNavActions", onClick OpenNavBar] [
-      p [] [ text model.location ],
-      p [ class ("boxed " ++ textClass) ] [ text guests ],
-      span [ class "material-icons primary-color"] [ text "search" ]
-    ]
+    div [ class "smallNavActions", onClick OpenNavBar ]
+        [ p [] [ text model.location ]
+        , p [ class ("boxed " ++ textClass) ] [ text guests ]
+        , span [ class "material-icons primary-color" ] [ text "search" ]
+        ]
+
 
 getLocations : List Item -> Set String
-getLocations items = 
-    Set.fromList (List.map2 
-    (++) 
-    (List.map (\el -> el.city ++ ", ") items) 
-    (List.map .country items))
+getLocations items =
+    Set.fromList
+        (List.map2
+            (++)
+            (List.map (\el -> el.city ++ ", ") items)
+            (List.map .country items)
+        )
+
 
 filterOutLocation : List String -> String -> List String
 filterOutLocation locations location =
-  List.filter (\l -> l /= location) locations
+    List.filter (\l -> l /= location) locations
+
 
 locationView : String -> Html Msg
 locationView place =
-    div [ class "location" ] [
-      div [ class "location__left-content"] [
-        span [ class "material-icons" ] [
-          text "place"
-        ],
-        p [] [ text place ]
-      ],
-      span [ class "material-icons" ]
-        [ text "chevron_right" ]
-    ]
+    div [ class "location" ]
+        [ div [ class "location__left-content" ]
+            [ span [ class "material-icons" ]
+                [ text "place"
+                ]
+            , p [] [ text place ]
+            ]
+        , span [ class "material-icons" ]
+            [ text "chevron_right" ]
+        ]
+
 
 locationFilterContainerView : Model -> Html Msg
-locationFilterContainerView model = 
-        if model.isLocationMenuOpen then
-            div [ class "filter-container", onClick CloseLocationFilterMenu] [
-              div [ class "between align-center" ] [
-                div [] [
-                  p [ class "filter-label" ] [ text "Location" ],
-                  p [] [ text model.location ]
-                ],
-                span [ class "material-icons" ] [
-                  text "expand_less"
-                ]
-              ],
-                div [ class "filter-conter__content" ] [
-                  ul [ class "location-list" ]
-                      (
-                        List.map (
-                            \l -> 
-                              li [
-                                class "location-list__item",
-                                onClick (LocationChange l)
-                              ] [ 
-                              locationView l
-                              ]
-                          ) (filterOutLocation (Set.toList (getLocations data)) model.location)
-                      )
+locationFilterContainerView model =
+    if model.isLocationMenuOpen then
+        div [ class "filter-container" ]
+            [ div [ onClick CloseLocationFilterMenu ]
+                [ div [ class "between align-center" ]
+                    [ div []
+                        [ p [ class "filter-label" ] [ text "Location" ]
+                        , p [] [ text model.location ]
+                        ]
+                    , span [ class "material-icons" ]
+                        [ text "expand_less"
+                        ]
+                    ]
+                , div [ class "filter-conter__content" ]
+                    [ ul [ class "location-list" ]
+                        (List.map
+                            (\l ->
+                                li
+                                    [ class "location-list__item"
+                                    , onClick (LocationChange l)
+                                    ]
+                                    [ locationView l
+                                    ]
+                            )
+                            (filterOutLocation (Set.toList (getLocations data)) model.location)
+                        )
+                    ]
                 ]
             ]
-          else 
-            div [ class "filter-container", onClick OpenLocationFilterMenu] [
-              div [ class "between align-center" ] [
-                div [] [
-                  p [ class "filter-label" ] [ text "Location" ],
-                  p [] [ text model.location ]
-                ],
-                span [ class "material-icons" ] [
-                  text "expand_more"
-                ]
-              ]
-            ]
-            
-openNavBar : Model -> Html Msg
-openNavBar model = 
-    nav [
-      class "navbar navbar__open"
-    ] [
-        div [ class "navbar-top" ] [
-           p [ class "navbar-title" ] [ text "Edit your search" ],
-           button [ class "close-navbar-icon" ] [
-             span [ class "material-icons", onClick CloseNavBar ] [ text "close" ]
-           ]
-        ],
-        div [ class "filters-container" ] [
-          locationFilterContainerView model,
-          div [ class "divider-horizontal"] [],
-          div [ class "filter-container"] [
-            p [ class "filter-label" ] [ text "Guests" ],
-            p [] [ 
-              text (if model.guests > 0
-                    then String.fromInt model.guests
-                    else "Add guests"
-                    ) 
-              ]
-          ]
-        ]
-    ]
 
-main = Browser.sandbox { init = init, update = update, view = view }
+    else
+        div [ class "filter-container", onClick OpenLocationFilterMenu ]
+            [ div [ class "between align-center" ]
+                [ div []
+                    [ p [ class "filter-label" ] [ text "Location" ]
+                    , p [] [ text model.location ]
+                    ]
+                , span [ class "material-icons" ]
+                    [ text "expand_more"
+                    ]
+                ]
+            ]
+
+
+guestsFilterContainerView : Model -> Html Msg
+guestsFilterContainerView model =
+    let
+        totalGuests =
+            model.guests.children + model.guests.adults
+    in
+    if model.isGuestsMenuOpen then
+        div [ class "filter-container", onClick CloseGuestsFilterMenu ]
+            [ div [ class "between align-center" ]
+                [ div []
+                    [ p [ class "filter-label" ] [ text "Guests" ]
+                    , p []
+                        [ text
+                            (if totalGuests > 0 then
+                                String.fromInt totalGuests
+
+                             else
+                                "Add guests"
+                            )
+                        ]
+                    ]
+                , span [ class "material-icons" ]
+                    [ text "expand_more"
+                    ]
+                ]
+            ]
+
+    else
+        div [ class "filter-container" ]
+            [ div [ onClick OpenGuestsFilterMenu ]
+                [ div [ class "between align-center" ]
+                    [ div []
+                        [ p [ class "filter-label" ] [ text "Guests" ]
+                        , p []
+                            [ text
+                                (if totalGuests > 0 then
+                                    String.fromInt totalGuests
+
+                                 else
+                                    "Add guests"
+                                )
+                            ]
+                        ]
+                    , span [ class "material-icons" ]
+                        [ text "expand_less"
+                        ]
+                    ]
+                ]
+            , div [ class "filter-container-content" ]
+                [ p [ class "guests-sub-title" ] [ text "Adults" ]
+                , p [ class "faint-text" ] [ text "Ages 13 or above" ]
+                , div
+                    [ class "guests-action-buttons" ]
+                    [ button [ onClick RemoveAdult ]
+                        [ span [ class "material-icons" ]
+                            [ text "remove" ]
+                        ]
+                    , p [] [ text (String.fromInt totalGuests) ]
+                    , button [ onClick AddAdult ]
+                        [ span [ class "material-icons" ]
+                            [ text "add" ]
+                        ]
+                    ]
+                ]
+            ]
+
+
+openNavBar : Model -> Html Msg
+openNavBar model =
+    nav
+        [ class "navbar navbar__open"
+        ]
+        [ div [ class "navbar-top" ]
+            [ p [ class "navbar-title" ] [ text "Edit your search" ]
+            , button [ class "close-navbar-icon" ]
+                [ span [ class "material-icons", onClick CloseNavBar ] [ text "close" ]
+                ]
+            ]
+        , div [ class "filters-container" ]
+            [ locationFilterContainerView model
+            , div [ class "divider-horizontal" ] []
+            , guestsFilterContainerView model
+            ]
+        ]
+
+
+main =
+    Browser.sandbox { init = init, update = update, view = view }
