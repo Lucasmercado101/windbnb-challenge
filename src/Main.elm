@@ -22,6 +22,9 @@ type alias Model =
     , isNavBarToggledOpen : Bool
     , isLocationMenuOpen : Bool
     , isGuestsMenuOpen : Bool
+    , newLocation : String
+    , newAdultsAmount : Int
+    , newChildrenAmount : Int
     }
 
 
@@ -35,6 +38,9 @@ init =
     , isNavBarToggledOpen = False
     , isLocationMenuOpen = False
     , isGuestsMenuOpen = False
+    , newLocation = "Helsinki, Finland"
+    , newAdultsAmount = 0
+    , newChildrenAmount = 0
     }
 
 
@@ -63,10 +69,17 @@ update msg model =
             { model | isNavBarToggledOpen = True }
 
         CloseNavBar ->
-            { model | isNavBarToggledOpen = False, isLocationMenuOpen = False, isGuestsMenuOpen = False }
+            { model
+                | isNavBarToggledOpen = False
+                , isLocationMenuOpen = False
+                , isGuestsMenuOpen = False
+                , newLocation = model.location
+                , newAdultsAmount = model.guests.adults
+                , newChildrenAmount = model.guests.children
+            }
 
         LocationChange newLocation ->
-            { model | location = newLocation, isLocationMenuOpen = False }
+            { model | newLocation = newLocation }
 
         OpenLocationFilterMenu ->
             { model | isLocationMenuOpen = True }
@@ -82,44 +95,32 @@ update msg model =
 
         RemoveAdult ->
             { model
-                | guests =
-                    { adults =
-                        if model.guests.adults - 1 < 0 then
-                            0
+                | newAdultsAmount =
+                    if model.newAdultsAmount - 1 < 0 then
+                        0
 
-                        else
-                            model.guests.adults - 1
-                    , children = model.guests.children
-                    }
+                    else
+                        model.newAdultsAmount - 1
             }
 
         AddAdult ->
             { model
-                | guests =
-                    { adults = model.guests.adults + 1
-                    , children = model.guests.children
-                    }
+                | newAdultsAmount = model.newAdultsAmount + 1
             }
 
         RemoveChild ->
             { model
-                | guests =
-                    { adults = model.guests.adults
-                    , children =
-                        if model.guests.children - 1 < 0 then
-                            0
+                | newChildrenAmount =
+                    if model.newChildrenAmount - 1 < 0 then
+                        0
 
-                        else
-                            model.guests.children - 1
-                    }
+                    else
+                        model.newChildrenAmount - 1
             }
 
         AddChild ->
             { model
-                | guests =
-                    { adults = model.guests.adults
-                    , children = model.guests.children + 1
-                    }
+                | newChildrenAmount = model.newChildrenAmount + 1
             }
 
 
@@ -206,11 +207,8 @@ navBar model =
         ]
         [ logo
         , smallNavActions model
-        , if model.isNavBarToggledOpen then
-            expandedNavBar model
-
-          else
-            text ""
+        , iff model.isNavBarToggledOpen
+            (expandedNavBar model)
         ]
 
 
@@ -279,7 +277,7 @@ locationFilterContainerView model =
                 [ div [ class "between align-center" ]
                     [ div []
                         [ p [ class "filter-label" ] [ text "Location" ]
-                        , p [] [ text model.location ]
+                        , p [] [ text model.newLocation ]
                         ]
                     , span [ class "material-icons" ]
                         [ text "expand_less"
@@ -307,7 +305,7 @@ locationFilterContainerView model =
             [ div [ class "between align-center" ]
                 [ div []
                     [ p [ class "filter-label" ] [ text "Location" ]
-                    , p [] [ text model.location ]
+                    , p [] [ text model.newLocation ]
                     ]
                 , span [ class "material-icons" ]
                     [ text "expand_more"
@@ -320,7 +318,7 @@ guestsFilterContainerView : Model -> Html Msg
 guestsFilterContainerView model =
     let
         totalGuests =
-            model.guests.children + model.guests.adults
+            model.newAdultsAmount + model.newChildrenAmount
     in
     if model.isGuestsMenuOpen then
         div [ class "filter-container" ]
@@ -348,11 +346,11 @@ guestsFilterContainerView model =
                 , p [ class "faint-text" ] [ text "Ages 13 or above" ]
                 , div
                     [ class "guests-action-buttons" ]
-                    [ button [ onClick RemoveAdult ]
+                    [ button [ onClick RemoveAdult, disabled (model.newAdultsAmount == 0) ]
                         [ span [ class "material-icons" ]
                             [ text "remove" ]
                         ]
-                    , p [] [ text (String.fromInt model.guests.adults) ]
+                    , p [] [ text (String.fromInt model.newAdultsAmount) ]
                     , button [ onClick AddAdult ]
                         [ span [ class "material-icons" ]
                             [ text "add" ]
@@ -364,11 +362,11 @@ guestsFilterContainerView model =
                 , p [ class "faint-text" ] [ text "Ages 2 - 12" ]
                 , div
                     [ class "guests-action-buttons" ]
-                    [ button [ onClick RemoveChild ]
+                    [ button [ onClick RemoveChild, disabled (model.newChildrenAmount == 0) ]
                         [ span [ class "material-icons" ]
                             [ text "remove" ]
                         ]
-                    , p [] [ text (String.fromInt model.guests.children) ]
+                    , p [] [ text (String.fromInt model.newChildrenAmount) ]
                     , button [ onClick AddChild ]
                         [ span [ class "material-icons" ]
                             [ text "add" ]
