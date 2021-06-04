@@ -150,14 +150,12 @@ view model =
         , div [ class "row between stays-title" ]
             [ h2 [] [ text "Stays in Finland" ]
             , p []
-                [ if numberOfStays > 0 then
-                    text
+                [ iff (numberOfStays > 0)
+                    (text
                         (String.fromInt numberOfStays
                             ++ "+ stays"
                         )
-
-                  else
-                    text ""
+                    )
                 ]
             ]
         , cardsGrid model
