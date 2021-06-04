@@ -63,7 +63,7 @@ update msg model =
             { model | isNavBarToggledOpen = True }
 
         CloseNavBar ->
-            { model | isNavBarToggledOpen = False }
+            { model | isNavBarToggledOpen = False, isLocationMenuOpen = False, isGuestsMenuOpen = False }
 
         LocationChange newLocation ->
             { model | location = newLocation, isLocationMenuOpen = False }
