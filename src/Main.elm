@@ -52,6 +52,8 @@ type Msg
     | CloseGuestsFilterMenu
     | AddAdult
     | RemoveAdult
+    | AddChild
+    | RemoveChild
 
 
 update : Msg -> Model -> Model
@@ -91,6 +93,22 @@ update msg model =
                 | guests =
                     { adults = model.guests.adults + 1
                     , children = model.guests.children
+                    }
+            }
+
+        RemoveChild ->
+            { model
+                | guests =
+                    { adults = model.guests.adults
+                    , children = model.guests.children - 1
+                    }
+            }
+
+        AddChild ->
+            { model
+                | guests =
+                    { adults = model.guests.adults
+                    , children = model.guests.children + 1
                     }
             }
 
@@ -259,8 +277,24 @@ guestsFilterContainerView model =
                         [ span [ class "material-icons" ]
                             [ text "remove" ]
                         ]
-                    , p [] [ text (String.fromInt totalGuests) ]
+                    , p [] [ text (String.fromInt model.guests.adults) ]
                     , button [ onClick AddAdult ]
+                        [ span [ class "material-icons" ]
+                            [ text "add" ]
+                        ]
+                    ]
+                ]
+            , div [ class "filter-container-content" ]
+                [ p [ class "guests-sub-title" ] [ text "Children" ]
+                , p [ class "faint-text" ] [ text "Ages 2 - 12" ]
+                , div
+                    [ class "guests-action-buttons" ]
+                    [ button [ onClick RemoveChild ]
+                        [ span [ class "material-icons" ]
+                            [ text "remove" ]
+                        ]
+                    , p [] [ text (String.fromInt model.guests.children) ]
+                    , button [ onClick AddChild ]
                         [ span [ class "material-icons" ]
                             [ text "add" ]
                         ]
