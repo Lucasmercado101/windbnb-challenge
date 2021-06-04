@@ -230,27 +230,6 @@ guestsFilterContainerView model =
             model.guests.children + model.guests.adults
     in
     if model.isGuestsMenuOpen then
-        div [ class "filter-container", onClick CloseGuestsFilterMenu ]
-            [ div [ class "between align-center" ]
-                [ div []
-                    [ p [ class "filter-label" ] [ text "Guests" ]
-                    , p []
-                        [ text
-                            (if totalGuests > 0 then
-                                String.fromInt totalGuests
-
-                             else
-                                "Add guests"
-                            )
-                        ]
-                    ]
-                , span [ class "material-icons" ]
-                    [ text "expand_more"
-                    ]
-                ]
-            ]
-
-    else
         div [ class "filter-container" ]
             [ div [ onClick OpenGuestsFilterMenu ]
                 [ div [ class "between align-center" ]
@@ -285,6 +264,27 @@ guestsFilterContainerView model =
                         [ span [ class "material-icons" ]
                             [ text "add" ]
                         ]
+                    ]
+                ]
+            ]
+
+    else
+        div [ class "filter-container", onClick CloseGuestsFilterMenu ]
+            [ div [ class "between align-center" ]
+                [ div []
+                    [ p [ class "filter-label" ] [ text "Guests" ]
+                    , p []
+                        [ text
+                            (if totalGuests > 0 then
+                                String.fromInt totalGuests
+
+                             else
+                                "Add guests"
+                            )
+                        ]
+                    ]
+                , span [ class "material-icons" ]
+                    [ text "expand_more"
                     ]
                 ]
             ]
