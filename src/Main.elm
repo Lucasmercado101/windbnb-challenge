@@ -131,11 +131,7 @@ view : Model -> Html Msg
 view model =
     main_ [ class "container" ]
         [ header []
-            [ if model.isNavBarToggledOpen == True then
-                openNavBar model
-
-              else
-                closedNavBar model
+            [ navBar model
             ]
         , div [ class "row between stays-title" ]
             [ h2 [] [ text "Stays in Finland" ]
@@ -203,13 +199,18 @@ roomCard roomData =
         ]
 
 
-closedNavBar : Model -> Html Msg
-closedNavBar model =
+navBar : Model -> Html Msg
+navBar model =
     nav
         [ class "navbar navbar__closed"
         ]
         [ logo
         , smallNavActions model
+        , if model.isNavBarToggledOpen then
+            expandedNavBar model
+
+          else
+            text ""
         ]
 
 
@@ -398,9 +399,9 @@ guestsFilterContainerView model =
             ]
 
 
-openNavBar : Model -> Html Msg
-openNavBar model =
-    nav
+expandedNavBar : Model -> Html Msg
+expandedNavBar model =
+    div
         [ class "navbar navbar__open"
         ]
         [ div [ class "navbar-top" ]
